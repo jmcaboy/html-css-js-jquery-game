@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>      
+        body{
+            margin: 0px;
+            overflow: hidden;
+        }  
+
+        #container{
+            width: 100%;
+            height: 100%;
+            position:absolute;
+            border: 1px solid black;
+        }
+
+        #octo {
+            position:absolute;
+            width: 150px;
+            height: 150px;
+            bottom: 50px;
+            left: 50px;
+        }
+
+        #pizza{
+            position:absolute;
+            width:100px;
+            height: 100px;
+            bottom: 50px;
+            right: 50px;
+        }
+
+        #background{
+            position:absolute;
+            width: 100%;
+            height: 900px;
+            opacity: 0.5;
+            background: url("emart.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            animation-name: bg-slide;
+            animation-duration: 10s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+
+        #score{
+            position:absolute;
+            width:100px;
+            height:100px;
+            bottom:80%;
+            right:10%;
+            border: 1px solid black;
+        }
+
+        /*
+        @keyframes bg-slide{
+            from {left: 0px;}
+            to {left: -50%;}
+        }
+        */
+    </style>
+
+</head>
+<body>
+    <div id="container">
+        <div id="background"></div>
+        <div id="score" value="점수"></div>
+        <img id = "octo" src="octopus.gif">
+        <img id = "pizza" src="knife.png">
+    </div>
+    <script>
+        let octo = $("#octo");
+        let isJumping = false;
+        let score = 0;
+
+        function jump() {
+            isJumping = true;
+            octo.animate({
+                bottom: "+=500px"
+            }).animate({
+                right:"+=50px"
+            }).animate({
+                bottom: "-=500px"
+            }, function () {
+                isJumping = false;
+            });
+        }
+
+        function enemyMove(){
+            $("#pizza").animate({
+                right : "90%"
+            }, 5000*Math.random(), function(){
+                $("#pizza").css("right", "-150px");
+            });
+        }
+
+        function deadCheck() {
+            let isDead = false; //기본값 설정 
+            let octo = $("#octo");  //마리오 선언
+            let enemy = $("#pizza");  //적 선언 
+        
+            let marioLeftX =  parseInt(octo.css("left").replace("px", ""));
+
+            let marioRightX =
+                parseInt(octo.css("left").replace("px", "")) +   //마리오 위치 계산 
+                parseInt(octo.css("width").replace("px", ""));   //문자열이므로 px를 없애고 정수로 변환
+
+            let enemyLeftX =
+                parseInt(enemy.css("left").replace("px", ""));
+
+            let marioBottomX =
+                parseInt(octo.css("bottom").replace("px", ""));
+
+            let enemyRightX =
+                parseInt(enemy.css("left").replace("px", "")) +
+                parseInt(enemy.css("width").replace("px", ""));
+
+            let enemyTopX =
+                parseInt(enemy.css("bottom").replace("px", "")) +
+                parseInt(enemy.css("height").replace("px", ""));
+
+            if (marioRightX > enemyLeftX && marioBottomX < enemyTopX) {
+                if (marioLeftX < enemyRightX) {
+                    isDead = true;
+                    score = score + 100;
+                }
+            }
+            return isDead; //리턴값 
+            }
+
+        // 스페이스바 누르면 점프
+        $("body").keydown(function (event){
+            switch(event.code){
+                case "Space":
+                    //스페이스 연타 방지
+                    if(isJumping == false){
+                         jump();
+                    }                 
+                    break;
+            }
+        });
+
+        scoretext = $("#score");
+
+        $(function(){
+            scoretext.text(score);
+        });
+      
+        
+        //대략 30프레임 화면 갱신
+        setInterval(function () {
+           //적 이동 
+            enemyMove();
+
+            //죽었는지 체크
+            if(deadCheck()){
+               alert("문어는 회가 되었습니다");             
+            };
+        }, 300);
+    </script>
+</body>
+</html>
